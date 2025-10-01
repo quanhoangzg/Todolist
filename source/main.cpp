@@ -1,18 +1,19 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <Task.h>
 using namespace std;
 //Making the list struct to store data
-struct task
-{
-    /* data */
-    int order;
-    string task_content;
-    string date_start;
-    string date_end;
-};
+// struct task
+// {
+//     /* data */
+//     int order;
+//     string task_content;
+//     string date_start;
+//     string date_end;
+// };
 
-task addTask() {
+Task addTask() {
     cout << "**What do you want to add?**" <<'\n';
     int order;
     cout << "Add the piority order: ";
@@ -31,26 +32,27 @@ task addTask() {
     cout << "Add the end date: ";
     getline(cin, date_end);
 
-    task newTask;
-    newTask.order = order;
-    newTask.task_content = task_content;
-    newTask.date_start = date_start;
-    newTask.date_end = date_end; 
+    // task newTask;
+    // newTask.order = order;
+    // newTask.task_content = task_content;
+    // newTask.date_start = date_start;
+    // newTask.date_end = date_end; 
+    Task newTask(order, task_content, date_start, date_end);
     return newTask;
 }
 
 
 
 // Design the interface first anyways
-void display(vector<task> tasks) {
+void display(vector<Task> tasks) {
     int EXIT = 0;
     while (EXIT == 0) {
         cout << "***************************" << '\n';
         cout << "*WELCOME TO YOUR TO DO LIST*" << '\n';
         cout << "The list:" << '\n';
-        for (task tsk : tasks) {
-            cout << "Task " << tsk.order << " || Task: " + tsk.task_content +" || Date Start:" +
-                    tsk.date_start + " || Date End: " + tsk.date_end << '\n';
+        for (Task tsk : tasks) {
+            cout << "Task " << tsk.getOrder() << " || Task: " + tsk.getTask_content() +" || Date Start:" +
+                    tsk.getDate_start() + " || Date End: " + tsk.getDate_end() << '\n';
         }
         cout << "OPTIONS:" << '\n';
         cout << "1. Add" << '\n';
@@ -69,7 +71,7 @@ void display(vector<task> tasks) {
 
 }
 int main() {
-    vector<task> tasks;
+    vector<Task> tasks;
     display(tasks);
 
     return 0;
