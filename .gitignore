@@ -10,3 +10,6 @@ Thumbs.db
 *.exe
 *.out
 *.o
+
+# Plan
+Plan.md
