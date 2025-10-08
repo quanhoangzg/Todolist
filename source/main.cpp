@@ -3,14 +3,20 @@
 #include <limits>
 #include <Task.h>
 #include <algorithm>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 Task addTask();
 bool checkOrder(int order);
 void deleteTask(int order);
 void display();
+bool parseDateTime(string &input, tm &outTime);
+bool isFuture(tm &timeStruct);
+bool isFurther(tm &startTime, tm &endTime);
 
 vector<Task> tasks;
+
 
 Task addTask() {
     cout << "**What do you want to add?**" <<'\n';
@@ -34,6 +40,7 @@ Task addTask() {
 
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     string task_content;
+    tm startTime{}, endTime{};
     string date_start;
     string date_end;
 
@@ -43,14 +50,41 @@ Task addTask() {
     } while (task_content.empty());
     
     do {
-        cout << "Add the start date (For example: 19:00 06/10/2025): ";
+        cout << "Add the start date (Format: HH:MM DD/MM/YYYY): ";
         getline(cin, date_start);
-    } while (date_start.empty());
+        
+        if (!parseDateTime(date_start, startTime)) {
+            cout << "Invalid format! Try again (Example: 19:30 16/02/2007)\n";
+            continue;
+        }
+
+        if (!isFuture(startTime)) {
+            cout << "The start time cannot be in the past.\n";
+            continue;
+        }
+        break;
+    } while (true);
 
     do {
-        cout << "Add the end date (For example: 19:30 06/10/2025): ";
+        cout << "Add the end date (Format: HH:MM DD/MM/YYYY): ";
         getline(cin, date_end);
-    } while (date_end.empty());
+
+        if (!parseDateTime(date_end, endTime)) {
+            cout << "Invalid format! Try again (Example: 19:30 16/02/2007)\n";
+            continue;
+        }
+
+        if (!isFuture(endTime)) {
+            cout << "The start time cannot be in the past.\n";
+            continue;
+        }
+
+        if (!isFurther(startTime, endTime)) {
+            cout << "The end time must not before the start time, please try again.\n";
+            continue;
+        }
+        break;
+    } while (true);
 
     Task newTask(order, task_content, date_start, date_end);
     return newTask;
@@ -72,15 +106,57 @@ void deleteTask(int order) {
 
 }
 
+bool parseDateTime(string &input, tm &outTime) {
+    std::istringstream ss(input);
+    ss >> std::get_time(&outTime, "%H:%M %d/%m/%Y");
+    if (ss.fail()) return false;
+
+    // Make a copy for validation
+    tm temp = outTime;
+
+    // Normalize using mktime
+    time_t t = mktime(&temp);
+    if (t == -1) return false; // invalid time_t result
+
+    // mktime() may auto-fix invalid values (e.g., 32 Jan → 1 Feb)
+    // So we recheck that nothing changed
+    if (temp.tm_year != outTime.tm_year ||
+        temp.tm_mon  != outTime.tm_mon  ||
+        temp.tm_mday != outTime.tm_mday ||
+        temp.tm_hour != outTime.tm_hour ||
+        temp.tm_min  != outTime.tm_min)
+        return false;
+
+    // Range check (optional double safety)
+    if (outTime.tm_hour < 0 || outTime.tm_hour > 23 ||
+        outTime.tm_min < 0  || outTime.tm_min > 59 ||
+        outTime.tm_mday < 1 || outTime.tm_mday > 31 ||
+        outTime.tm_mon < 0  || outTime.tm_mon > 11)
+        return false;
+
+    return true;
+}
 
 
+bool isFuture(tm &timeStruct) {
+    time_t check_time = mktime(&timeStruct);
+    time_t curr = time(nullptr);
+    return difftime(check_time, curr) > 0;
+}
+
+bool isFurther(tm &startTime, tm &endTime) {
+    time_t start = mktime(&startTime);
+    time_t end = mktime(&endTime);
+    return difftime(end, start) > 0;
+}
 
 // Design the interface first anyways
 void display() {
     int EXIT = 0;
     while (EXIT == 0) {
-        cout << "***************************" << '\n';
+        cout << "****************************" << '\n';
         cout << "*WELCOME TO YOUR TO DO LIST*" << '\n';
+        cout << "****************************" << '\n';
         cout << "The list:" << '\n';
         for (Task tsk : tasks) {
             cout << "Task " << tsk.getOrder() << " || Task: " + tsk.getTask_content() +" || Date Start:" +
