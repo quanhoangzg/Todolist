@@ -16,12 +16,20 @@ Task addTask() {
     cout << "**What do you want to add?**" <<'\n';
     int order;
     cout << "Add the piority order: ";
-    cin >> order;
+    while (!(cin >> order)) {
+        cout << "Invalid Input, try again: ";
+        cin.clear();
+        cin.ignore(1000, '\n');
+    }
 
     //check if piority has matched
     while (checkOrder(order)) {
         cout << "This piority has been chosen, please prompt another piority number: ";
-        cin >> order;
+        while (!(cin >> order)) {
+            cout << "Invalid Input, try again: ";
+            cin.clear();
+            cin.ignore(1000, '\n');
+        }
     }
 
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -29,14 +37,20 @@ Task addTask() {
     string date_start;
     string date_end;
 
-    cout << "Add the Task content: ";
-    getline(cin, task_content);
+    do {
+        cout << "Add the Task content: ";
+        getline(cin, task_content);
+    } while (task_content.empty());
+    
+    do {
+        cout << "Add the start date (For example: 19:00 06/10/2025): ";
+        getline(cin, date_start);
+    } while (date_start.empty());
 
-    cout << "Add the start date (For example: 19:00 06/10/2025): ";
-    getline(cin, date_start);
-
-    cout << "Add the end date (For example: 19:30 06/10/2025): ";
-    getline(cin, date_end);
+    do {
+        cout << "Add the end date (For example: 19:30 06/10/2025): ";
+        getline(cin, date_end);
+    } while (date_end.empty());
 
     Task newTask(order, task_content, date_start, date_end);
     return newTask;

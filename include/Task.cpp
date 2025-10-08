@@ -35,3 +35,4 @@ void Task::setDate_start(string date_start) {
 void Task::setDate_end(string date_end) {
     this->date_end = date_end;
 }
+
